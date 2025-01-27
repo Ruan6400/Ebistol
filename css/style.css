@@ -1,0 +1,93 @@
+#Game{
+    position: relative;
+    width: 640px;
+    height: 360px;
+    border: 1px solid black;
+    overflow: hidden;
+}
+#Game>*{position: absolute;}
+#Player{
+    width: 64px;
+    height: 64px;
+    background-image: url(../player/idle/playeridle1.png);
+}
+#Player_hitbox{
+    width: 32px;
+    height: 50px;
+    background-color: #f000
+}
+.bullet{
+    width: 16px;
+    height: 16px;
+    background-image: url(../player/bolha_projetil_attack_player.png);
+}
+
+
+#Boss{
+    width: 256px;
+    height: 256px;
+}
+#boss_col{
+    width: 70px;
+    height: 70px;
+    background-color: #0f00;
+}
+.spike{
+    width: 32px;
+    height: 32px;
+    background-image: url(../Baiacu/Spike.png);
+}
+.gas{
+    width: 99px;
+    height: 140px;
+    background-image: url(../Baiacu/projetilveneno/projetilveneno1.png);
+}
+
+.gascolision{
+    width: 40px;
+    height: 100px;
+    background-color: #0000;
+}
+
+
+#gameover{
+    width: 640px;
+    height: 360px;
+    background-image: url(../telas/gameover.png);
+}
+
+#bt_start{
+    width: 144px;
+    height: 68px;
+    background-image: url(../telas/boss.png);
+    border: none;
+    top: 170px;
+    right: 20px;
+    background-color: #0000;
+}
+
+#exit{
+    width: 144px;
+    height: 68px;
+    background-image: url(../telas/exit.png);
+    border: none;
+    top: 250px;
+    right: 20px;
+    background-color: #0000;
+}
+
+#win{
+    width: 640px;
+    height: 360px;
+    background-image: url(../telas/win.png);
+}
+
+#Music{
+    display: none;
+}
+
+.heart{
+    width: 32px;
+    height: 32px;
+    background-image: url(../hud/c1.png);
+}
