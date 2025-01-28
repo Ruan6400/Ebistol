@@ -622,7 +622,29 @@ function Boss_Battle(){
         Tudo.forEach(x=>x.remove())
         tela.insertAdjacentHTML('beforeend','<div id="win"></div>')
         etapa="win"
-        DJ.pause()
+        document.querySelector('audio:last-of-type').pause()
+        tela.insertAdjacentHTML('beforeend','<p>Clique em qualquer lugar para continuar</p>')
+        document.getElementById('win').addEventListener('click',()=>{
+            Tudo = document.querySelectorAll('#Game>*')
+            Tudo.forEach(x=>x.remove())
+            etapa="menu"
+            tela.style.backgroundImage="url(telas/Tela_Inicial.png)"
+            document.querySelector('audio').currentTime=0
+            document.querySelector('audio').play()
+            tela.insertAdjacentHTML('beforeend','<button id="bt_start"></button>')
+            tela.insertAdjacentHTML('beforeend','<button id="exit"></button>')
+            let bt_start =  document.querySelector('#bt_start')
+            let bt_exit = document.getElementById('exit')
+
+            bt_exit.addEventListener('click',()=>{window.close()})
+            bt_start.addEventListener('click',()=>{
+                document.querySelectorAll('button').forEach(bt=>bt.remove())
+                tela.style.backgroundImage="url(telas/gameplaybackgroundsketch.png)"
+                
+                Game_Start()
+            })
+        })
+        
     }
     Animar(Boss,Boss.Fps,Boss.animacao_atual,Boss.frame_size)
 }
@@ -664,23 +686,32 @@ function Game(){
     Controles.clamp()
     Controles.animacao()
     if(HP<=0){
+        document.querySelector('audio:last-of-type').pause()
         let Tudo = document.querySelectorAll('#Game>*')
         Tudo.forEach(x=>x.remove())
         etapa="game over"
-        tela.insertAdjacentHTML('beforeend','<button>Voltar</button>')
         tela.insertAdjacentHTML('beforeend','<div id="gameover"></div>')
-        document.querySelector('button').addEventListener('click',()=>{
-            document.querySelector('button').remove()
+        tela.insertAdjacentHTML('beforeend','<p>Clique em qualquer lugar para continuar</p>')
+        document.getElementById('gameover').addEventListener('click',()=>{
+            Tudo = document.querySelectorAll('#Game>*')
+            Tudo.forEach(x=>x.remove())
             etapa="menu"
-            tela.style.backgroundImage = 'url(telas/gameplaybackgroundsketch.png)'
-            tela.insertAdjacentHTML('beforeend','<button>Começar</button>')
-            document.querySelector('button').addEventListener('click',()=>{
-                document.querySelector('button').remove()
+            tela.style.backgroundImage="url(telas/Tela_Inicial.png)"
+            document.querySelector('audio').currentTime=0
+            document.querySelector('audio').play()
+            tela.insertAdjacentHTML('beforeend','<button id="bt_start"></button>')
+            tela.insertAdjacentHTML('beforeend','<button id="exit"></button>')
+            let bt_start =  document.querySelector('#bt_start')
+            let bt_exit = document.getElementById('exit')
+
+            bt_exit.addEventListener('click',()=>{window.close()})
+            bt_start.addEventListener('click',()=>{
+                document.querySelectorAll('button').forEach(bt=>bt.remove())
+                tela.style.backgroundImage="url(telas/gameplaybackgroundsketch.png)"
+                
                 Game_Start()
             })
-
         })
-        DJ.pause()
         
     }
     Mover(player,direcao)
@@ -700,6 +731,9 @@ function Game(){
     }else{
         if(score >= 1){
             SpawnBoss()
+            document.querySelector('audio').pause()
+            document.querySelector('audio:last-of-type').currentTime=0
+            document.querySelector('audio:last-of-type').play()
             bossfight =true
         }
     }
@@ -717,16 +751,19 @@ function Start(){
     let bt_start =  document.querySelector('#bt_start')
     let bt_exit = document.getElementById('exit')
 
-    DJ = document.getElementById('Music')
     
     
     bt_exit.addEventListener('click',()=>{window.close()})
     bt_start.addEventListener('click',()=>{
         document.querySelectorAll('button').forEach(bt=>bt.remove())
         tela.style.backgroundImage="url(telas/gameplaybackgroundsketch.png)"
-        DJ.currentTime = 0
-        DJ.play()
+        
         Game_Start()
+    })
+    tela.insertAdjacentHTML('beforeend','<div id="Playintro">Clique em qualquer lugar para continuar</div>')
+    document.querySelector('#Playintro').addEventListener('click',()=>{
+        document.querySelector('audio').play()
+        document.querySelector('#Playintro').remove()
     })
     Update()
 }
