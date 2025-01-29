@@ -25,7 +25,7 @@ let Player_anim = {
 
 let Boss_anim = {
     idle:[
-        {img:'Baiacu/inchando/Baiacu_inchando.png'},
+        {img:'Baiacu/Inchando/Baiacu_inchando.png'},
         {x:0,y:0,w:256,h:256},
         {x:-256,y:0,w:256,h:256},
         {x:-512,y:0,w:256,h:256},
@@ -36,19 +36,19 @@ let Boss_anim = {
         {x:0,y:0,w:256,h:256}
     ],
     inflate:[
-        {img:'Baiacu/inchando/Baiacu_inchando.png'}
+        {img:'Baiacu/Inchando/Baiacu_inchando.png'}
     ],
     prp_spin:[
         {img:'Baiacu/prepare_spin/Baiacu_prepare_spin.png'},
     ],
     spin:[
-        {img:'Baiacu/Spin/Baiacu_Spin.png'}
+        {img:'Baiacu/Spin/Baiacu_spin.png'}
     ],
     deflate:[
-        {img:'Baiacu/inchando/Baiacu_inchando.png'}
+        {img:'Baiacu/Inchando/Baiacu_inchando.png'}
     ],
     max_inflate:[
-        {img:'Baiacu/inchando/Baiacu_inchando.png'}
+        {img:'Baiacu/Inchando/Baiacu_inchando.png'}
     ],
     toxic_gas:[
         {img:'Baiacu/veneno/Baiacu_veneno.png'}

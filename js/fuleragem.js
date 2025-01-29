@@ -87,3 +87,19 @@ function Mover(obj,direcao){
     obj.style.top = (obj.offsetTop+direcao.y)+'px'
 }
 
+
+function preloadImages(sources) {
+    return Promise.all(
+        sources.map(src => 
+            new Promise((resolve, reject) => {
+                const img = new Image();
+                img.src = src;
+                img.onload = () => resolve();
+                img.onerror = () => reject(new Error(`Erro ao carregar a imagem: ${src}`));
+            })
+        )
+    );
+}
+
+
+

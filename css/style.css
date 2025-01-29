@@ -111,3 +111,6 @@ html, body {
 p{
     color: white;
 }
+.mimic{
+    border:1px solid red
+}

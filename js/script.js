@@ -250,13 +250,13 @@ function SpawnBoss(){
     Boss.movimento = {x:0,y:0}
     Boss.direcao_varar_gaz = 1
     Boss.HP = 30
-    console.log(Boss.animacao_atual)
 }
 
 //alguma coisa
 function Boss_Battle(){
     switch(Boss.acao){
         case "aparecer":
+            console.log(Boss.style.backgroundImage)
             Boss.timer_2++
             Mover(Boss,{x:0,y:1})
             if(Boss.timer_2 >= 150){
@@ -265,6 +265,7 @@ function Boss_Battle(){
             }
             break;
         case "standby":
+            console.log(Boss.style.backgroundImage)
             Boss.timer_2++
             if(Boss.timer_2 >= 100){
                 Boss.timer_2 =0
@@ -286,7 +287,6 @@ function Boss_Battle(){
                             Boss.animacao_atual = Boss_anim.inflate;
                             Boss.frame=1
                             Boss.Fps=3
-                            console.log(Boss.animacao_atual)
                         }
                         if(Boss.frame>=5){
                             Boss.acoes_secundarias=2
@@ -646,6 +646,7 @@ function Boss_Battle(){
         })
         
     }
+    //MimicBehavior()
     Animar(Boss,Boss.Fps,Boss.animacao_atual,Boss.frame_size)
 }
 
@@ -728,6 +729,7 @@ function Game(){
 
     if(bossfight){
         Boss_Battle()
+        
     }else{
         if(score >= 1){
             SpawnBoss()
@@ -743,6 +745,37 @@ function Game(){
     
 }
 
+
+
+
+function SpawnMimic(){
+    let mimico = document.createElement('div')
+    mimico.classList.add('mimic')
+    mimico.style.width="256px"
+    mimico.style.height="256px"
+    mimico.style.top = "-500px"
+    mimico.style.backgroundImage="url(Baiacu/Inchando/Baiacu_inchando.png)"
+    tela.insertAdjacentElement('beforeend',mimico)
+}
+function MimicBehavior(){
+    let mimics = document.querySelectorAll('.mimic')
+    mimics.forEach(mimic=>{
+        let myimage = mimic.style.backgroundImage
+        let b_image = Boss.style.backgroundImage
+        if(Boss.style.backgroundImage == mimic.style.backgroundImage){
+            mimic.style.top = Boss.offsetTop+"px"
+            mimic.style.left = Boss.offsetLeft+"px"
+            // mimic.style.backgroundPosition = Boss.style.backgroundPosition
+            // mimic.style.transform = Boss.style.transform
+        }
+        else{
+            mimic.style.top = "-500px"
+        }
+    })
+}
+
+
+
 function Start(){
     tela = document.getElementById('Game')
     tela.style.backgroundImage="url(telas/Tela_Inicial.png)"
@@ -750,17 +783,18 @@ function Start(){
     tela.insertAdjacentHTML('beforeend','<button id="exit"></button>')
     let bt_start =  document.querySelector('#bt_start')
     let bt_exit = document.getElementById('exit')
-
+    
     
     
     bt_exit.addEventListener('click',()=>{window.close()})
     bt_start.addEventListener('click',()=>{
         document.querySelectorAll('button').forEach(bt=>bt.remove())
         tela.style.backgroundImage="url(telas/gameplaybackgroundsketch.png)"
-        
+        //SpawnMimic()
         Game_Start()
     })
     tela.insertAdjacentHTML('beforeend','<div id="Playintro">Clique em qualquer lugar para continuar</div>')
+    document.getElementById('Playintro').style.backgroundImage= 'Baiacu/Inchando/Baiacu_inchando.png'
     document.querySelector('#Playintro').addEventListener('click',()=>{
         document.querySelector('audio').play()
         document.querySelector('#Playintro').remove()
