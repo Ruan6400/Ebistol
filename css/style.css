@@ -10,7 +10,6 @@ html, body {
     position: relative;
     width: 640px;
     height: 360px;
-    border: 1px solid black;
     overflow: hidden;
     margin: 0 auto;
 }
@@ -21,9 +20,9 @@ html, body {
     background-image: url(../player/idle/playeridle1.png);
 }
 #Player_hitbox{
-    width: 32px;
-    height: 50px;
-    background-color: #f000
+    width: 28px;
+    height: 45px;
+    background-color: #ff0a
 }
 .bullet{
     width: 16px;
@@ -68,7 +67,7 @@ html, body {
 #bt_start{
     width: 144px;
     height: 68px;
-    background-image: url(../telas/boss.png);
+    background-image: url(../telas/start.png);
     border: none;
     top: 170px;
     right: 20px;
@@ -111,6 +110,15 @@ html, body {
 p{
     color: white;
 }
-.mimic{
-    border:1px solid red
+
+button{
+    transition: transform 0.5s ease;
+}
+button:hover{
+    transform: scale(1.2);
+}
+
+.peixe{
+    width: 64px;
+    height: 64px;
 }

@@ -23,6 +23,11 @@ let Player_anim = {
     ]
 }
 
+let peixe_anim = {
+    green:[{img:'inimigos/peixe_normal_green.png'}],
+    pink:[{img:'inimigos/peixe_normal_pink.png'}]
+}
+
 let Boss_anim = {
     idle:[
         {img:'Baiacu/Inchando/Baiacu_inchando.png'},
@@ -82,3 +87,5 @@ for(let i=0;i<6;i++){Boss_anim.max_inflate.push({x:-5*256,y:0,w:256,h:256})}
 for(let i=5;i>-1;i--){Boss_anim.max_inflate.push({x:-1*i*256,y:0,w:256,h:256})}
 for(let i=0;i<4;i++){Boss_anim.toxic_gas.push({x:-1*i*256,y:0,w:256,h:256})}
 for(let i=4;i<7;i++){Boss_anim.toxic_gas_2.push({x:-1*i*256,y:0,w:256,h:256})}
+for(let i=0;i<8;i++){peixe_anim.green.push({x:i*-1*64,y:0,w:64,h:64})}
+for(let i=0;i<8;i++){peixe_anim.pink.push({x:i*-1*64,y:0,w:64,h:64})}

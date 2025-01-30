@@ -1,8 +1,8 @@
 let tela;
 let etapa = "menu"
-let DJ
-
-let teste
+let paralax = 0
+let Spawn_timer = 0
+let Spawn_rate = 150
 
 let direcao = {x:0,y:0}
 let velocidadeX = 3
@@ -14,11 +14,10 @@ let player;
 let dir = false;let esq = false;let cim = false; let dow = false;let dash = false
 let shoot_ready = true
 let bullets
-let score = 1
+let score = 0
 let HP = 5
 let player_hitbox;
 let hearts
-
 
 
 let Boss
@@ -81,8 +80,8 @@ let Controles = {
         }
     },
     movendo:()=>{
-        player_hitbox.style.left = player.offsetLeft+15+"px"
-        player_hitbox.style.top = player.offsetTop+10+"px"
+        player_hitbox.style.left = player.offsetLeft+20+"px"
+        player_hitbox.style.top = player.offsetTop+15+"px"
         if(!esq&&!dir){direcao.x = 0}
         if(dir){direcao.x = velocidadeX}
         if(esq){direcao.x = -1*velocidadeX}
@@ -131,7 +130,7 @@ let Controles = {
 
         if(!shoot_ready){
             player.timer_recoil++
-            if(player.timer_recoil>=20){
+            if(player.timer_recoil>=15){
                 player.timer_recoil=0
                 shoot_ready=true
             }
@@ -194,24 +193,91 @@ function Bullet(){
     bullets = document.querySelectorAll('.bullet')
     bullets.forEach(bullet=>{
         bullet.timer++
-        if(bullet.timer>20){
+        if(bullet.timer>10){
             bullet.zigzag*=-1
             bullet.timer=0
         }
         Mover(bullet,{x:bullet.zigzag,y:-5})
-        if(Colisao_Quadrada(bullet,Boss.hitbox)){
-            bullet.remove()
-            Boss.HP--
-        }
+        let inimigos = document.querySelectorAll('.hitbox_enemy')
+        inimigos.forEach(enemy=>{
+            if(Colisao_Quadrada(bullet,enemy)){
+                bullet.remove()
+                enemy.own.HP--
+            }
+        })
         if(bullet.offsetTop<(bullet.offsetHeight*-1)){bullet.remove()}
     })
 }
+
+
+function Spawn(){
+    Spawn_timer++
+    if(Spawn_timer>=Spawn_rate){
+        let enemy = document.createElement('div')
+        let random = Math.floor(Math.random()*1.999)
+
+        
+        enemy.classList.add('peixe')
+        enemy.style.top = Math.round((Math.random()*(tela.offsetHeight-200))+60)+"px"
+        enemy.style.left = (random == 1?  tela.offsetWidth:  -1*enemy.offsetWidth)+"px"
+
+        tela.appendChild(enemy)
+        Spawn_timer=0;
+    }
+
+}
+
+
+function Peixe(){
+    let peixes = document.querySelectorAll('.peixe')
+    peixes.forEach(peixe=>{
+        if(peixe.direcao == null){
+            peixe.direcao = peixe.offsetLeft<=0? "esquerda" : "direita";
+            peixe.animacao = peixe_anim[Object.keys(peixe_anim)[Math.floor(Math.random()*1.999)]]
+            peixe.hitbox = document.createElement('div')
+            peixe.hitbox.classList.add('hitbox_enemy')
+            peixe.hitbox.style = "width:35px; height:25px;"
+            peixe.hitbox.style.backgroundColor="#ff0a"
+            peixe.hitbox.own = peixe
+            peixe.HP = 1
+            tela.appendChild(peixe.hitbox)
+        }
+        Animar(peixe,5,peixe.animacao,{w:512,h:64})
+        peixe.hitbox.style.left = (peixe.offsetLeft+15)+"px"
+        peixe.hitbox.style.top = (peixe.offsetTop+20)+"px"
+        if(peixe.direcao == "direita"){
+            Mover(peixe,{x:-1,y:0})
+            peixe.style.transform = "scale(-1,1)"
+        }else{
+            Mover(peixe,{x:1,y:0})
+        }
+        if(peixe.HP<=0){
+            peixe.hitbox.remove()
+            peixe.remove()
+            score++
+            if(Spawn_rate>50)
+                Spawn_rate-=25
+        }
+        if(peixe.offsetLeft<(-1*peixe.offsetWidth-30)||peixe.offsetLeft>tela.offsetWidth+30){
+            peixe.hitbox.remove()
+            peixe.remove()
+            
+        }
+        if(Colisao_Circular(player_hitbox,peixe.hitbox,30)&&!player.knocked){
+            player.knocked = true
+            HP--
+        }
+    })
+}
+
 
 function SpawnBoss(){
     tela.insertAdjacentHTML('beforeend','<div id="Boss"></div>')
     tela.insertAdjacentHTML('beforeend','<div id="boss_col"></div>')
     Boss = document.getElementById('Boss')
     Boss.hitbox = document.getElementById('boss_col')
+    Boss.hitbox.classList.add('hitbox_enemy')
+    Boss.hitbox.own = Boss
     Boss.style.left = Math.round(tela.offsetWidth/2-Boss.offsetWidth/2)+"px"
     Boss.style.top = "-180px"
     Boss.acao = "aparecer"
@@ -222,7 +288,7 @@ function SpawnBoss(){
     Boss.animacao_atual = Boss_anim.idle
     Boss.frame_size = {w:1536,h:256}
     Boss.body_range = 50
-    Boss.acoes_principais = ['Shooting','Emboscar','Bixo Piruleta','Oh u GAAIZ','Oh u GAAIZ']
+    Boss.acoes_principais = ['Shooting','Emboscar','Bixo Piruleta','Oh u GAAIZ','Oh u GAAIZ','Shooting']
     Boss.mira_spikes = [
         //cima
         {direcao:{x:0,y:-5},rotacao:"0",posicao:{x:110,y:70}},
@@ -251,12 +317,10 @@ function SpawnBoss(){
     Boss.direcao_varar_gaz = 1
     Boss.HP = 30
 }
-
 //alguma coisa
 function Boss_Battle(){
     switch(Boss.acao){
         case "aparecer":
-            console.log(Boss.style.backgroundImage)
             Boss.timer_2++
             Mover(Boss,{x:0,y:1})
             if(Boss.timer_2 >= 150){
@@ -265,12 +329,11 @@ function Boss_Battle(){
             }
             break;
         case "standby":
-            console.log(Boss.style.backgroundImage)
             Boss.timer_2++
             if(Boss.timer_2 >= 100){
                 Boss.timer_2 =0
                 Boss.acoes_secundarias =0
-                Boss.acao = Boss.acoes_principais[Math.round(Math.random()*4)]
+                Boss.acao = Boss.acoes_principais[Math.round(Math.random()*5)]
                 //Boss.acao = "Oh u GAAIZ"
             }
             break;
@@ -628,6 +691,7 @@ function Boss_Battle(){
             Tudo = document.querySelectorAll('#Game>*')
             Tudo.forEach(x=>x.remove())
             etapa="menu"
+            tela.style.backgroundPosition = "0 0"
             tela.style.backgroundImage="url(telas/Tela_Inicial.png)"
             document.querySelector('audio').currentTime=0
             document.querySelector('audio').play()
@@ -663,7 +727,7 @@ function Game_Start(){
     player.knocked = false
     player.time_knock =0
     HP = 5
-    score=1
+    score=0
     bossfight=false
     player.timer_recoil = 0
     teste = document.getElementById
@@ -697,6 +761,7 @@ function Game(){
             Tudo = document.querySelectorAll('#Game>*')
             Tudo.forEach(x=>x.remove())
             etapa="menu"
+            tela.style.backgroundPosition = "0 0"
             tela.style.backgroundImage="url(telas/Tela_Inicial.png)"
             document.querySelector('audio').currentTime=0
             document.querySelector('audio').play()
@@ -717,7 +782,6 @@ function Game(){
     }
     Mover(player,direcao)
     Bullet()
-
     hearts = document.querySelectorAll('.heart')
     hearts.forEach((coracao,indice)=>{
         Animar(coracao,5,heart)
@@ -726,18 +790,24 @@ function Game(){
         }
     })
 
+    console.log(score)
+    Spawn()
+    Peixe()
+
 
     if(bossfight){
         Boss_Battle()
         
     }else{
-        if(score >= 1){
+        if(score >= 5){
             SpawnBoss()
             document.querySelector('audio').pause()
             document.querySelector('audio:last-of-type').currentTime=0
             document.querySelector('audio:last-of-type').play()
             bossfight =true
         }
+        paralax++
+        tela.style.backgroundPosition = "0 "+paralax+"px"
     }
 
 
@@ -745,34 +815,6 @@ function Game(){
     
 }
 
-
-
-
-function SpawnMimic(){
-    let mimico = document.createElement('div')
-    mimico.classList.add('mimic')
-    mimico.style.width="256px"
-    mimico.style.height="256px"
-    mimico.style.top = "-500px"
-    mimico.style.backgroundImage="url(Baiacu/Inchando/Baiacu_inchando.png)"
-    tela.insertAdjacentElement('beforeend',mimico)
-}
-function MimicBehavior(){
-    let mimics = document.querySelectorAll('.mimic')
-    mimics.forEach(mimic=>{
-        let myimage = mimic.style.backgroundImage
-        let b_image = Boss.style.backgroundImage
-        if(Boss.style.backgroundImage == mimic.style.backgroundImage){
-            mimic.style.top = Boss.offsetTop+"px"
-            mimic.style.left = Boss.offsetLeft+"px"
-            // mimic.style.backgroundPosition = Boss.style.backgroundPosition
-            // mimic.style.transform = Boss.style.transform
-        }
-        else{
-            mimic.style.top = "-500px"
-        }
-    })
-}
 
 
 
