@@ -212,14 +212,14 @@ function Bullet(){
 
 function Spawn(){
     Spawn_timer++
-    let inimigos = ['peixe','agua_viva']
+    let inimigos = ['peixe','peixe','agua_viva']
     if(Spawn_timer>=Spawn_rate){
         let enemy = document.createElement('div')
         let random = Math.floor(Math.random()*1.999)
 
         
-        //enemy.classList.add(inimigos[Math.round(Math.random()*(inimigos.length-1))])
-        enemy.classList.add('agua_viva')
+        enemy.classList.add(inimigos[Math.round(Math.random()*(inimigos.length-1))])
+        //enemy.classList.add('agua_viva')
         enemy.style.top = Math.round((Math.random()*(tela.offsetHeight-200))+0)+"px"
         enemy.style.left = (random == 1?  tela.offsetWidth:  -128)+"px"
 
@@ -237,14 +237,25 @@ function Jellyfish(){
             jfsh.float = -3
             jfsh.timer_float=0
             jfsh.float_speed=1
-            jfsh.timer_atk = 300
+            jfsh.timer_atk = 0
 
             jfsh.animacao_atual = jellyfish.idle
             jfsh.sprite_size = {w:512,h:128}
             jfsh.movimento = {x:jfsh.direcao == "esquerda"?1:-1,y:0}
             jfsh.fps=15
-            jfsh.eletrostatic = 25
 
+            /**Range da hitbox da agua viva */
+            jfsh.eletrostatic = 25
+            jfsh.dir_raios = [
+                {rotacao:0,sentido:{x:0,y:-1},posicao:{x:30,y:0}},
+                {rotacao:90,sentido:{x:1,y:0},posicao:{x:75,y:50}},
+                {rotacao:180,sentido:{x:0,y:1},posicao:{x:30,y:75}},
+                {rotacao:270,sentido:{x:-1,y:0},posicao:{x:0,y:50}},
+                {rotacao:45,sentido:{x:1,y:-1},posicao:{x:75,y:10}},
+                {rotacao:135,sentido:{x:1,y:1},posicao:{x:75,y:75}},
+                {rotacao:225,sentido:{x:-1,y:1},posicao:{x:0,y:75}},
+                {rotacao:315,sentido:{x:-1,y:-1},posicao:{x:0,y:0}}
+            ]
 
 
             jfsh.hitbox = document.createElement('div')
@@ -259,8 +270,8 @@ function Jellyfish(){
             tela.appendChild(jfsh.hitbox)
         }
 
-        if(Math.abs(jfsh.hitbox.offsetLeft-player_hitbox.offsetLeft)>=50&&jfsh.timer_atk==0){
-
+        if((Math.abs(jfsh.hitbox.offsetLeft-player_hitbox.offsetLeft)>=50||jfsh.timer_atk>=152)&&(jfsh.animacao_atual == jellyfish.idle)){
+            
             //comandos para movimentação
             jfsh.timer_float++
             if(jfsh.timer_float>=2){
@@ -271,8 +282,8 @@ function Jellyfish(){
                 Mover(jfsh,jfsh.movimento)
             }
         }else{
-            if(jfsh.animacao_atual==jellyfish.idle){
-                
+            if(jfsh.animacao_atual==jellyfish.idle&&jfsh.timer_atk==0){
+                jfsh.timer_atk=1
                 jfsh.frame=0
                 jfsh.fps=5
                 jfsh.animacao_atual=jellyfish.lightningup
@@ -281,18 +292,63 @@ function Jellyfish(){
             if(jfsh.animacao_atual==jellyfish.lightningup&&jfsh.frame>=4){
                 jfsh.frame=0
                 jfsh.fps=5
+                jfsh.eletrostatic = 50
                 jfsh.animacao_atual=jellyfish.sparking
                 jfsh.sprite_size={w:512,h:128}
             }
+            if(jfsh.timer_atk>150){
+                jfsh.frame=0
+                jfsh.fps=5
+                jfsh.eletrostatic = 25
+                jfsh.animacao_atual=jellyfish.idle
+                jfsh.sprite_size={w:512,h:128}
+            }
+
+            if(jfsh.timer_atk%50 == 0){
+                let dir_ini=(jfsh.timer_atk/50)%2==0?0:4
+                let dir_end=(jfsh.timer_atk/50)%2==0?4:8
+                for(let i = dir_ini;i<dir_end;i++){
+                    let raio = document.createElement('div')
+                    raio.direcao = jfsh.dir_raios[i]
+                    raio.classList.add('spark')
+                    raio.style.top = (jfsh.offsetTop+raio.direcao.posicao.y)+"px"
+                    raio.style.left = (jfsh.offsetLeft+raio.direcao.posicao.x)+"px"
+                    tela.insertAdjacentElement('beforeend',raio)
+                }
+            }
+        }
+        if(jfsh.timer_atk>0){
             jfsh.timer_atk++
-            if(jfsh.timer == 300){}
+            if(jfsh.timer_atk>=300)
+                jfsh.timer_atk=0
         }
         
         jfsh.hitbox.style.left = (jfsh.offsetLeft+52)+"px"
         jfsh.hitbox.style.top = (jfsh.offsetTop+55)+"px"
         Animar(jfsh,jfsh.fps,jfsh.animacao_atual,jfsh.sprite_size)
-
-
+        let Raios = ()=>{
+            let sparks = document.querySelectorAll('.spark')
+            sparks.forEach(raio=>{
+                Animar(raio,5,jellyfish.spark,{w:192,h:64})
+                raio.style.transform = "rotate("+raio.direcao.rotacao+"deg)"
+                Mover(raio,raio.direcao.sentido)
+                if(raio.offsetTop>tela.offsetHeight||
+                    raio.offsetTop<=(raio.offsetHeight*-1)||
+                    raio.offsetLeft>=(tela.offsetWidth)||
+                    raio.offsetLeft <= (raio.offsetWidth*-1)
+                ){
+                    raio.remove()
+                }
+                if(Colisao_Circular(player_hitbox,raio,16)&&velocidadeY!=dashspeed){
+                    if(!player.knocked){
+                        HP-=1
+                        player.knocked = true
+                        raio.remove()
+                    }
+                }
+            })
+        }
+        Raios()
 
 
 
@@ -301,7 +357,7 @@ function Jellyfish(){
             jfsh.remove()
             score++
             if(Spawn_rate>50)
-                Spawn_rate-=20
+                Spawn_rate-=5
         }
         if(jfsh.offsetLeft<(-1*jfsh.offsetWidth-30)||jfsh.offsetLeft>tela.offsetWidth+30){
             jfsh.hitbox.remove()
@@ -343,7 +399,7 @@ function Peixe(){
             peixe.remove()
             score++
             if(Spawn_rate>50)
-                Spawn_rate-=25
+                Spawn_rate-=5
         }
         if(peixe.offsetLeft<(-1*peixe.offsetWidth-30)||peixe.offsetLeft>tela.offsetWidth+30){
             peixe.hitbox.remove()
@@ -885,7 +941,7 @@ function Game(){
         }
     })
 
-    console.log(score)
+
     Spawn()
     Peixe()
     Jellyfish()
@@ -895,7 +951,7 @@ function Game(){
         Boss_Battle()
         
     }else{
-        if(score >= 5){
+        if(score >= 20){
             SpawnBoss()
             document.querySelector('audio').pause()
             document.querySelector('audio:last-of-type').currentTime=0

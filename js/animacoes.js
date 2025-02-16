@@ -31,7 +31,8 @@ let peixe_anim = {
 let jellyfish = {
     idle:[{img:'inimigos/Aguaviva/idle.png'}],
     lightningup:[{img:'inimigos/Aguaviva/lightning_up.png'}],
-    sparking:[{img:'inimigos/Aguaviva/sparking.png'}]
+    sparking:[{img:'inimigos/Aguaviva/sparking.png'}],
+    spark:[{img:'inimigos/Aguaviva/spark.png'}]
 }
 
 let Boss_anim = {
@@ -98,3 +99,4 @@ for(let i=0;i<8;i++){peixe_anim.pink.push({x:i*-1*64,y:0,w:64,h:64})}
 for(let i=0;i<4;i++){jellyfish.idle.push({x:i*-1*128,y:0,w:128,h:128})}
 for(let i=0;i<5;i++){jellyfish.lightningup.push({x:i*-1*128,y:0,w:128,h:128})}
 for(let i=0;i<4;i++){jellyfish.sparking.push({x:i*-1*128,y:0,w:128,h:128})}
+for(let i=0;i<3;i++){jellyfish.spark.push({x:i*-1*64,y:0,w:64,h:64})}
