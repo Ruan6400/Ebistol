@@ -28,6 +28,12 @@ let peixe_anim = {
     pink:[{img:'inimigos/peixe_normal_pink.png'}]
 }
 
+let jellyfish = {
+    idle:[{img:'inimigos/Aguaviva/idle.png'}],
+    lightningup:[{img:'inimigos/Aguaviva/lightning_up.png'}],
+    sparking:[{img:'inimigos/Aguaviva/sparking.png'}]
+}
+
 let Boss_anim = {
     idle:[
         {img:'Baiacu/Inchando/Baiacu_inchando.png'},
@@ -89,3 +95,6 @@ for(let i=0;i<4;i++){Boss_anim.toxic_gas.push({x:-1*i*256,y:0,w:256,h:256})}
 for(let i=4;i<7;i++){Boss_anim.toxic_gas_2.push({x:-1*i*256,y:0,w:256,h:256})}
 for(let i=0;i<8;i++){peixe_anim.green.push({x:i*-1*64,y:0,w:64,h:64})}
 for(let i=0;i<8;i++){peixe_anim.pink.push({x:i*-1*64,y:0,w:64,h:64})}
+for(let i=0;i<4;i++){jellyfish.idle.push({x:i*-1*128,y:0,w:128,h:128})}
+for(let i=0;i<5;i++){jellyfish.lightningup.push({x:i*-1*128,y:0,w:128,h:128})}
+for(let i=0;i<4;i++){jellyfish.sparking.push({x:i*-1*128,y:0,w:128,h:128})}

@@ -34,13 +34,13 @@ let Controles = {
                 break;
             case 68: dir = true
                 break;
-            case 40: dow = true
+            /*case 40: dow = true
                 break;
             case 83: dow = true
+                break;*/
+            case 38: dash = true
                 break;
-            case 38: cim = true
-                break;
-            case 87: cim = true
+            case 87: dash = true
                 break;
             case 32: if(shoot_ready&&player.timer_recoil==0){
                 Shoot()
@@ -69,9 +69,9 @@ let Controles = {
                 break;
             case 83: dow = false
                 break;
-            case 38: cim = false
+            case 38: dash = false
                 break;
-            case 87: cim = false
+            case 87: dash = false
                 break;
             case 32:
                 break;
@@ -98,8 +98,8 @@ let Controles = {
                 dashable = false
             }
         }else{
-            player_timer++
-            if(player_timer>=30){
+            if(velocidadeY>0){player_timer++}
+            if(player_timer>=60){
                 player_timer = 0
                 dashable =true
             }
@@ -212,14 +212,16 @@ function Bullet(){
 
 function Spawn(){
     Spawn_timer++
+    let inimigos = ['peixe','agua_viva']
     if(Spawn_timer>=Spawn_rate){
         let enemy = document.createElement('div')
         let random = Math.floor(Math.random()*1.999)
 
         
-        enemy.classList.add('peixe')
-        enemy.style.top = Math.round((Math.random()*(tela.offsetHeight-200))+60)+"px"
-        enemy.style.left = (random == 1?  tela.offsetWidth:  -1*enemy.offsetWidth)+"px"
+        //enemy.classList.add(inimigos[Math.round(Math.random()*(inimigos.length-1))])
+        enemy.classList.add('agua_viva')
+        enemy.style.top = Math.round((Math.random()*(tela.offsetHeight-200))+0)+"px"
+        enemy.style.left = (random == 1?  tela.offsetWidth:  -128)+"px"
 
         tela.appendChild(enemy)
         Spawn_timer=0;
@@ -227,6 +229,91 @@ function Spawn(){
 
 }
 
+function Jellyfish(){
+    let jellyfishes = document.querySelectorAll('.agua_viva')
+    jellyfishes.forEach(jfsh=>{
+        if(jfsh.direcao == null){
+            jfsh.direcao = jfsh.offsetLeft<=0? "esquerda" : "direita";
+            jfsh.float = -3
+            jfsh.timer_float=0
+            jfsh.float_speed=1
+            jfsh.timer_atk = 300
+
+            jfsh.animacao_atual = jellyfish.idle
+            jfsh.sprite_size = {w:512,h:128}
+            jfsh.movimento = {x:jfsh.direcao == "esquerda"?1:-1,y:0}
+            jfsh.fps=15
+            jfsh.eletrostatic = 25
+
+
+
+            jfsh.hitbox = document.createElement('div')
+            jfsh.hitbox.classList.add('hitbox_enemy')
+            jfsh.hitbox.style = "width:25px; height:25px;"
+            jfsh.hitbox.style.backgroundColor="#0f00"
+            jfsh.hitbox.own = jfsh
+            jfsh.HP = 1
+
+
+
+            tela.appendChild(jfsh.hitbox)
+        }
+
+        if(Math.abs(jfsh.hitbox.offsetLeft-player_hitbox.offsetLeft)>=50&&jfsh.timer_atk==0){
+
+            //comandos para movimentação
+            jfsh.timer_float++
+            if(jfsh.timer_float>=2){
+                jfsh.timer_float = 0
+                jfsh.float+=jfsh.float_speed
+                if(jfsh.float>=6||jfsh.float<=-6){jfsh.float_speed*=-1}
+                jfsh.movimento.y = jfsh.float
+                Mover(jfsh,jfsh.movimento)
+            }
+        }else{
+            if(jfsh.animacao_atual==jellyfish.idle){
+                
+                jfsh.frame=0
+                jfsh.fps=5
+                jfsh.animacao_atual=jellyfish.lightningup
+                jfsh.sprite_size={w:640,h:128}
+            }
+            if(jfsh.animacao_atual==jellyfish.lightningup&&jfsh.frame>=4){
+                jfsh.frame=0
+                jfsh.fps=5
+                jfsh.animacao_atual=jellyfish.sparking
+                jfsh.sprite_size={w:512,h:128}
+            }
+            jfsh.timer_atk++
+            if(jfsh.timer == 300){}
+        }
+        
+        jfsh.hitbox.style.left = (jfsh.offsetLeft+52)+"px"
+        jfsh.hitbox.style.top = (jfsh.offsetTop+55)+"px"
+        Animar(jfsh,jfsh.fps,jfsh.animacao_atual,jfsh.sprite_size)
+
+
+
+
+
+        if(jfsh.HP<=0){
+            jfsh.hitbox.remove()
+            jfsh.remove()
+            score++
+            if(Spawn_rate>50)
+                Spawn_rate-=20
+        }
+        if(jfsh.offsetLeft<(-1*jfsh.offsetWidth-30)||jfsh.offsetLeft>tela.offsetWidth+30){
+            jfsh.hitbox.remove()
+            jfsh.remove()
+            
+        }
+        if(Colisao_Circular(player_hitbox,jfsh.hitbox,jfsh.eletrostatic)&&!player.knocked&&velocidadeY!=dashspeed){
+            player.knocked = true
+            HP--
+        }
+    })
+}
 
 function Peixe(){
     let peixes = document.querySelectorAll('.peixe')
@@ -237,7 +324,7 @@ function Peixe(){
             peixe.hitbox = document.createElement('div')
             peixe.hitbox.classList.add('hitbox_enemy')
             peixe.hitbox.style = "width:35px; height:25px;"
-            peixe.hitbox.style.backgroundColor="#ff0a"
+            peixe.hitbox.style.backgroundColor="#ff00"
             peixe.hitbox.own = peixe
             peixe.HP = 1
             tela.appendChild(peixe.hitbox)
@@ -246,10 +333,10 @@ function Peixe(){
         peixe.hitbox.style.left = (peixe.offsetLeft+15)+"px"
         peixe.hitbox.style.top = (peixe.offsetTop+20)+"px"
         if(peixe.direcao == "direita"){
-            Mover(peixe,{x:-1,y:0})
+            Mover(peixe,{x:-2,y:bossfight?0:1})
             peixe.style.transform = "scale(-1,1)"
         }else{
-            Mover(peixe,{x:1,y:0})
+            Mover(peixe,{x:2,y:bossfight?0:1})
         }
         if(peixe.HP<=0){
             peixe.hitbox.remove()
@@ -263,7 +350,7 @@ function Peixe(){
             peixe.remove()
             
         }
-        if(Colisao_Circular(player_hitbox,peixe.hitbox,30)&&!player.knocked){
+        if(Colisao_Circular(player_hitbox,peixe.hitbox,30)&&!player.knocked&&velocidadeY!=dashspeed){
             player.knocked = true
             HP--
         }
@@ -278,17 +365,18 @@ function SpawnBoss(){
     Boss.hitbox = document.getElementById('boss_col')
     Boss.hitbox.classList.add('hitbox_enemy')
     Boss.hitbox.own = Boss
+    Boss.HP = 30
     Boss.style.left = Math.round(tela.offsetWidth/2-Boss.offsetWidth/2)+"px"
     Boss.style.top = "-180px"
     Boss.acao = "aparecer"
     Boss.timer_2 = 0
-    Boss.spikes = 50
+    Boss.spikes = Math.round(   100 - (   (3.3*Boss.HP)/2   )   )
     Boss.acoes_secundarias = 0
     Boss.lado_da_tela=0
     Boss.animacao_atual = Boss_anim.idle
     Boss.frame_size = {w:1536,h:256}
     Boss.body_range = 50
-    Boss.acoes_principais = ['Shooting','Emboscar','Bixo Piruleta','Oh u GAAIZ','Oh u GAAIZ','Shooting']
+    Boss.acoes_principais = ['Shooting','Emboscar','Bixo Piruleta','Oh u GAAIZ','Shooting']
     Boss.mira_spikes = [
         //cima
         {direcao:{x:0,y:-5},rotacao:"0",posicao:{x:110,y:70}},
@@ -315,7 +403,7 @@ function SpawnBoss(){
     Boss.Fps =5
     Boss.movimento = {x:0,y:0}
     Boss.direcao_varar_gaz = 1
-    Boss.HP = 30
+    
 }
 //alguma coisa
 function Boss_Battle(){
@@ -330,10 +418,10 @@ function Boss_Battle(){
             break;
         case "standby":
             Boss.timer_2++
-            if(Boss.timer_2 >= 100){
+            if(Boss.timer_2 >= (3.3*Boss.HP)){
                 Boss.timer_2 =0
                 Boss.acoes_secundarias =0
-                Boss.acao = Boss.acoes_principais[Math.round(Math.random()*5)]
+                Boss.acao = Boss.acoes_principais[Math.round(Math.random()*    (Boss.acoes_principais.length-1)   )]
                 //Boss.acao = "Oh u GAAIZ"
             }
             break;
@@ -393,7 +481,7 @@ function Boss_Battle(){
                             }
                         }else{
                             Boss.timer_2 = 0
-                            Boss.spikes = 50
+                            Boss.spikes = Math.round(   100 - (   (3.3*Boss.HP)/2   )   )
                             Boss.acoes_secundarias = 4
                         }  
                         break;
@@ -523,9 +611,8 @@ function Boss_Battle(){
                             Boss.Fps=3
                             Boss.frame_size = {w:1024,h:256}
                         }
-                        if(Boss.movimento.x==0){Boss.movimento.x=(Math.round(Math.random()*7)+3)}
-                        if(Boss.movimento.y==0){Boss.movimento.y=(Math.round(Math.random()*4)+4)
-                        }
+                        if(Boss.movimento.x==0){Boss.movimento.x=(Math.round(Math.random()*7)+3)* (3-Math.round((Boss.HP/30)*2))}
+                        if(Boss.movimento.y==0){Boss.movimento.y=(Math.round(Math.random()*4)+4)* (3-Math.round((Boss.HP/30)*2))}
                         
                         if(Boss.offsetLeft>=tela.offsetWidth-180||Boss.offsetLeft<=-70){
                             Boss.movimento.x*=-1
@@ -641,9 +728,12 @@ function Boss_Battle(){
                 spike.remove()
             }
 
-            if(Colisao_Circular(player_hitbox,spike,16)){
-                HP-=1
-                spike.remove()
+            if(Colisao_Circular(player_hitbox,spike,16)&&velocidadeY!=dashspeed){
+                if(!player.knocked){
+                    HP-=1
+                    player.knocked = true
+                    spike.remove()
+                }
             }
         })
     }
@@ -674,7 +764,7 @@ function Boss_Battle(){
     Ultragaz()
     Boss.hitbox.style.left=Boss.offsetLeft+95+"px"
     Boss.hitbox.style.top=Boss.offsetTop+100+"px"
-    if(Colisao_Circular(player,Boss.hitbox,Boss.body_range)){
+    if(Colisao_Circular(player,Boss.hitbox,Boss.body_range)&&velocidadeY!=dashspeed){
         if(!player.knocked){
             player.knocked=true
             HP--
@@ -710,7 +800,12 @@ function Boss_Battle(){
         })
         
     }
-    //MimicBehavior()
+    if(Boss.acoes_principais.length == 6 && Boss.HP<=20){
+        Boss.acoes_principais.push("Bixo Piruleta")
+    }
+    if(Boss.acoes_principais.length == 7 && Boss.HP<=10){
+        Boss.acoes_principais.push("Shooting")
+    }
     Animar(Boss,Boss.Fps,Boss.animacao_atual,Boss.frame_size)
 }
 
@@ -793,6 +888,7 @@ function Game(){
     console.log(score)
     Spawn()
     Peixe()
+    Jellyfish()
 
 
     if(bossfight){
