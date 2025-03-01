@@ -3,7 +3,7 @@ let etapa = "menu"
 let paralax = 0
 let Spawn_timer = 0
 let Spawn_rate = 150
-
+let txtScore;
 let direcao = {x:0,y:0}
 let velocidadeX = 3
 let velocidadeY = 3
@@ -275,6 +275,7 @@ function Moreia(){
         }
 
         if(moreia.HP<=0){
+            ShowPoints(moreia.hitbox)
             moreia.hitbox.remove()
             moreia.remove()
             score++
@@ -284,7 +285,16 @@ function Moreia(){
     })
     
 }
-
+function ShowPoints(obj){
+    let point = document.createElement('p')
+    point.innerHTML = "+1"
+    point.classList.add('point')
+    point.style.top = (obj.offsetTop+Math.round(obj.offsetHeight/2))+"px"
+    point.style.left = (obj.offsetLeft+Math.round(obj.offsetWidth/2))+"px"
+    tela.insertAdjacentElement('beforeend',point)
+    setTimeout(()=>point.remove(),1000)
+    
+}
 function Jellyfish(){
     let jellyfishes = document.querySelectorAll('.agua_viva')
     jellyfishes.forEach(jfsh=>{
@@ -387,6 +397,7 @@ function Jellyfish(){
             jfsh.style.top=(jfsh.offsetTop+1)+"px"
 
         if(jfsh.HP<=0){
+            ShowPoints(jfsh.hitbox)
             jfsh.hitbox.remove()
             jfsh.remove()
             score++
@@ -452,6 +463,7 @@ function Peixe(){
             Mover(peixe,{x:2,y:bossfight?0:1})
         }
         if(peixe.HP<=0){
+            ShowPoints(peixe.hitbox)
             peixe.hitbox.remove()
             peixe.remove()
             score++
@@ -479,6 +491,7 @@ function SpawnBoss(){
     Boss.hitbox.classList.add('hitbox_enemy')
     Boss.hitbox.own = Boss
     Boss.HP = 30
+    Boss.HP_tilt = 30
     Boss.style.left = Math.round(tela.offsetWidth/2-Boss.offsetWidth/2)+"px"
     Boss.style.top = "-180px"
     Boss.acao = "aparecer"
@@ -920,6 +933,17 @@ function Boss_Battle(){
         Boss.acoes_principais.push("Shooting")
     }
     Animar(Boss,Boss.Fps,Boss.animacao_atual,Boss.frame_size)
+
+    if(Boss.HP!=Boss.HP_tilt){
+        if(Boss.animacao_atual==Boss_anim.spin||Boss.acao=="Emboscar"||Boss.acao=="aparecer"){
+            Boss.HP++
+        }else{
+            Boss.style.transform = "scale(1,0.625)"
+            setTimeout(()=>Boss.style.transform = "scale(1,1)",100)
+        }
+        Boss.HP_tilt = Boss.HP
+    }
+
 }
 
 
@@ -928,6 +952,8 @@ function Boss_Battle(){
  */
 function Game_Start(){
     tela.insertAdjacentHTML('beforeend','<div id="Player"></div>')
+    tela.insertAdjacentHTML('beforeend','<p id="score">Score: 0</p>')
+    txtScore = document.getElementById('score')
     player = document.getElementById('Player')
     tela.insertAdjacentHTML('beforeend','<div id="Player_hitbox"></div>')
     player_hitbox = document.getElementById('Player_hitbox')
@@ -955,6 +981,7 @@ function Game_Start(){
     etapa="game"
 }
 function Game(){
+    txtScore.innerHTML=`Score: ${score}`
     Controles.movendo()
     Controles.clamp()
     Controles.animacao()
@@ -1016,6 +1043,8 @@ function Game_Over(){
     if(deadbody!=null&&deadbody.frame==10){
         deadbody.remove()
         deadbody=null
+        let Restos = document.querySelectorAll('#Game :not(p,#gameover)')
+        Restos.forEach(trash=>trash.remove())
         tela.insertAdjacentHTML('beforeend','<div id="gameover"></div>')
         tela.insertAdjacentHTML('beforeend','<p>Clique em qualquer lugar para continuar</p>')
         document.getElementById('gameover').addEventListener('click',()=>{

@@ -14,7 +14,7 @@ html, body {
     margin: 0 auto;
 }
 #Game>*{position: absolute;}
-#Game p{top: 300px;}
+#Game :is(#gameover,#win)+p{top: 300px;}
 #Player{
     width: 64px;
     height: 64px;
@@ -98,6 +98,7 @@ html, body {
 .heart{
     width: 32px;
     height: 32px;
+    top:20px;
     background-image: url(../hud/c1.png);
 }
 
@@ -136,4 +137,21 @@ button:hover{
 .moreia{
     width: 150px;
     height: 150px;
+}
+
+@keyframes point{
+    0%{
+        opacity: 1;
+    }
+    100%{
+        opacity: 0;
+        transform: translateY(-100%);
+    }
+}
+.point{
+    animation: point 1s infinite ease-out;
+}
+#score{
+    top:10px;
+    right:35px;
 }
