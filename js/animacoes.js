@@ -15,6 +15,16 @@ let Player_anim = {
         'player/dash/playerdash2.png',
         'player/dash/playerdash3.png',
         'player/dash/playerdash3.png',
+        'player/dash/playerdash3.png',
+        'player/dash/playerdash3.png',
+        'player/dash/playerdash3.png',
+        'player/dash/playerdash3.png',
+        'player/dash/playerdash3.png',
+        'player/dash/playerdash3.png',
+        'player/dash/playerdash3.png',
+        'player/dash/playerdash3.png',
+        'player/dash/playerdash3.png',
+        'player/dash/playerdash3.png',
         'player/dash/playerdash3.png'
     ],
     hit:[
@@ -48,6 +58,18 @@ let jellyfish = {
     spark:[{img:'inimigos/Aguaviva/spark.png'}]
 }
 let moray = [{img:'inimigos/moreia/moreia.png'}]
+
+let concha = {
+    idle:[
+        {img:'inimigos/shell/idle.png'}
+    ],
+    perseguir:[
+        {img:'inimigos/shell/dash.png'}
+    ],
+    morder:[
+        {img:'inimigos/shell/open.png'}
+    ]
+}
 
 let Boss_anim = {
     idle:[
@@ -115,3 +137,6 @@ for(let i=0;i<5;i++){jellyfish.lightningup.push({x:i*-1*128,y:0,w:128,h:128})}
 for(let i=0;i<4;i++){jellyfish.sparking.push({x:i*-1*128,y:0,w:128,h:128})}
 for(let i=0;i<3;i++){jellyfish.spark.push({x:i*-1*64,y:0,w:64,h:64})}
 for(let i=0;i<5;i++){moray.push({x:i*-1*151,y:0,w:150,h:150})}
+for(let i=0;i<4;i++){concha.idle.push({x:i*-1*128,y:0,w:128,h:128})}
+for(let i=0;i<2;i++){concha.perseguir.push({x:i*-1*128,y:0,w:128,h:128})}
+for(let i=0;i<5;i++){concha.morder.push({x:i*-1*128,y:0,w:128,h:128})}

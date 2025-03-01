@@ -19,7 +19,7 @@ let HP = 5
 let player_hitbox;
 let hearts
 let deadbody;
-
+let winner;
 
 let Boss
 let bossfight = false
@@ -121,7 +121,7 @@ let Controles = {
                 player.knocked=false
             }
         }
-        if(velocidadeX==1&&velocidadeY==1){
+        if(velocidadeX==1){
             player.timer_slow++
             if(player.timer_slow>=40){
                 velocidadeX=3
@@ -213,14 +213,14 @@ function Bullet(){
 
 function Spawn(){
     Spawn_timer++
-    let inimigos = ['peixe','peixe','agua_viva','moreia']
+    let inimigos = ['peixe','peixe','agua_viva','moreia','shell']
     if(Spawn_timer>=Spawn_rate){
         let enemy = document.createElement('div')
         let random = Math.floor(Math.random()*1.999)
 
         
         enemy.classList.add(inimigos[Math.round(Math.random()*(inimigos.length-1))])
-        //enemy.classList.add('moreia')
+        //enemy.classList.add('shell')
         enemy.style.top = Math.round((Math.random()*(tela.offsetHeight-200))+0)+"px"
         enemy.style.left = (random == 1?  tela.offsetWidth:  -128)+"px"
 
@@ -438,7 +438,94 @@ function Jellyfish(){
     }
     Raios()
 }
+function Shell(){
+    let shells = document.querySelectorAll('.shell')
+    shells.forEach(shell=>{
+        if(shell.direcao == null){
+            shell.direcao = "nenhuma";
+            shell.movimento = {x:0,y:1}
+            shell.float_side=0
+            shell.floatdir = 1
+            shell.timer_float =0
+            shell.style.top="-128px"
+            shell.style.left= (Math.round(Math.random()*(tela.offsetWidth-128)))+"px"
+            shell.animacao_atual = concha.idle
+            shell.fps = 10
+            shell.sprite_size = {w:512,h:128}
+            shell.HP =1
 
+
+
+            shell.hitbox= document.createElement('div')
+            shell.hitbox.style = `width:30px;height:30px`
+            shell.hitbox.classList.add('hitbox_enemy')
+            shell.hitbox.own = shell
+            tela.insertAdjacentElement('beforeend',shell.hitbox)
+
+            shell.chasing = false
+        }
+        shell.timer_float++
+        if(shell.timer_float == 5&& !shell.chasing){
+            if(Math.abs(shell.float_side)>=4){
+                shell.floatdir*=-1
+            }
+            shell.float_side+=shell.floatdir
+            shell.timer_float=0
+        }
+
+        shell.hitbox.style.top=(shell.offsetTop+50)+"px"
+        shell.hitbox.style.left=(shell.offsetLeft+50)+"px"
+        shell.movimento.x = shell.float_side
+        Mover(shell,shell.movimento)
+
+
+        if(Colisao_Circular(shell.hitbox,player_hitbox,200)){
+            shell.chasing=true
+            shell.float_side=0
+        }
+        if(shell.chasing){
+            if(shell.animacao_atual == concha.idle){
+                shell.animacao_atual = concha.perseguir
+                shell.frame = 0
+                shell.fps = 5
+                shell.movimento.y= 2
+                shell.sprite_size.w=256
+            }
+
+            shell.float_side=shell.hitbox.offsetLeft-player_hitbox.offsetLeft < 0?1:-1;
+
+            if(shell.animacao_atual == concha.perseguir && Colisao_Circular(shell.hitbox,player_hitbox,150)){
+                shell.animacao_atual = concha.morder
+                shell.frame=0
+                shell.sprite_size.w=640
+            }
+        }
+        if(Colisao_Quadrada(player_hitbox,shell.hitbox)&&!player.knocked){
+            player.knocked=true
+            HP--
+        }
+        if(shell.HP<=0){
+            ShowPoints(shell.hitbox)
+            shell.hitbox.remove()
+            shell.remove()
+            score++
+            if(Spawn_rate>50)
+                Spawn_rate-=5
+        }
+
+
+        Animar(shell,shell.fps,shell.animacao_atual,shell.sprite_size)
+
+
+
+
+
+        if(shell.offsetTop>tela.offsetHeight){
+            shell.hitbox.remove()
+            shell.remove()
+        }
+    })
+}
 function Peixe(){
     let peixes = document.querySelectorAll('.peixe')
     peixes.forEach(peixe=>{
@@ -897,11 +984,18 @@ function Boss_Battle(){
         }
     }
     if(Boss.HP<=0){
-        let Tudo = document.querySelectorAll('#Game>*')
+        let Tudo = document.querySelectorAll('#Game>*:not(#Player)')
+        winner = document.createElement('div')
+        winner.style = "width:64px;height:64px;"
+        winner.style.left = player.offsetLeft+"px"
+        winner.style.top = player.offsetTop+"px"
+        tela.appendChild(winner)
         Tudo.forEach(x=>x.remove())
-        tela.insertAdjacentHTML('beforeend','<div id="win"></div>')
+        player.style.opacity="0"
         etapa="win"
         document.querySelector('audio:last-of-type').pause()
+        /*
+        tela.insertAdjacentHTML('beforeend','<div id="win"></div>')
         tela.insertAdjacentHTML('beforeend','<p>Clique em qualquer lugar para continuar</p>')
         document.getElementById('win').addEventListener('click',()=>{
             Tudo = document.querySelectorAll('#Game>*')
@@ -923,7 +1017,7 @@ function Boss_Battle(){
                 
                 Game_Start()
             })
-        })
+        })*/
         
     }
     if(Boss.acoes_principais.length == 6 && Boss.HP<=20){
@@ -1015,6 +1109,7 @@ function Game(){
     Peixe()
     Jellyfish()
     Moreia()
+    Shell()
 
 
     if(bossfight){
@@ -1071,6 +1166,42 @@ function Game_Over(){
 
     }
 }
+function Win(){
+    if(winner!=null){
+        Animar(winner,5,Player_anim.dash)
+        Mover(winner,{x:0,y:-10})
+    }
+    if(winner!=null&&winner.offsetTop<-64){
+        winner.remove()
+        winner=null
+        let Restos = document.querySelectorAll('#Game :not(p,#win)')
+        Restos.forEach(trash=>trash.remove())
+        
+        tela.insertAdjacentHTML('beforeend','<div id="win"></div>')
+        tela.insertAdjacentHTML('beforeend','<p>Clique em qualquer lugar para continuar</p>')
+        document.getElementById('win').addEventListener('click',()=>{
+            Tudo = document.querySelectorAll('#Game>*')
+            Tudo.forEach(x=>x.remove())
+            etapa="menu"
+            tela.style.backgroundPosition = "0 0"
+            tela.style.backgroundImage="url(telas/Tela_Inicial.png)"
+            document.querySelector('audio').currentTime=0
+            document.querySelector('audio').play()
+            tela.insertAdjacentHTML('beforeend','<button id="bt_start"></button>')
+            tela.insertAdjacentHTML('beforeend','<button id="exit"></button>')
+            let bt_start =  document.querySelector('#bt_start')
+            let bt_exit = document.getElementById('exit')
+
+            bt_exit.addEventListener('click',()=>{window.close()})
+            bt_start.addEventListener('click',()=>{
+                document.querySelectorAll('button').forEach(bt=>bt.remove())
+                tela.style.backgroundImage="url(telas/gameplaybackgroundsketch.png)"
+                
+                Game_Start()
+            })
+        })
+    }
+}
 
 
 
@@ -1111,6 +1242,7 @@ function Update(){
             Game_Over()
             break;
         case "win":
+            Win()
             break;
     }
     requestAnimationFrame(Update);

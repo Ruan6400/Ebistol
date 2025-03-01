@@ -138,6 +138,11 @@ button:hover{
     width: 150px;
     height: 150px;
 }
+.shell{
+    width: 128px;
+    height: 128px;
+    background-image: url(../inimigos/shell/idle.png);
+}
 
 @keyframes point{
     0%{
