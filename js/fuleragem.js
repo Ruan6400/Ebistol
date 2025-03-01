@@ -46,25 +46,51 @@ function Colisao_Circular(Objeto1,Objeto2,Raio){
  */
 function Animar(Objeto,frames_p_sprite,spritesheet,tam_spsheet={}){
     if(Objeto.timer == null){
+        //criação de propriedades para a animação do objeto funcionar
+
+
+
         Objeto.fimanim=false
         Objeto.timer=0
+
+
+
         if(spritesheet[0].img != null){
+
+            //com spritesheet
             Objeto.frame=1
             Objeto.style.backgroundImage = "url("+spritesheet[0].img+")"
             Objeto.style.backgroundSize = tam_spsheet.w+"px "+tam_spsheet.h+"px"
-        }else{Objeto.frame=0}
+        }else{
+
+            //sem spritesheet
+            Objeto.frame=0
+        }
     }
     Objeto.timer++
-    if(spritesheet[0].img == null)
-            Objeto.style.backgroundImage = "url("+spritesheet[Objeto.frame]+")"
+
+    //Caso não use spritesheet
+    if(spritesheet[0].img == null){
+        Objeto.style.backgroundImage = "url("+spritesheet[Objeto.frame]+")"
+    }
+
+
+    //Troca de frame da animação
     if(Objeto.timer>=frames_p_sprite){
         Objeto.timer=0;
+        //reiniciar o timer para o próximo frame
         
         if(spritesheet[0].img == null){
-            
+
+            //sem spritesheet
             Objeto.frame = Objeto.frame==(spritesheet.length-1)? 0: Objeto.frame+1;
         }else{
+            //com spritesheet
+
             if(Objeto.frame==(spritesheet.length-1)){Objeto.frame=1}else{Objeto.frame++}
+
+
+
             Objeto.style.backgroundSize = tam_spsheet.w+"px "+tam_spsheet.h+"px"
             Objeto.style.backgroundImage =  "url("+spritesheet[0].img+")"
             Objeto.style.width = spritesheet[Objeto.frame].w+"px"

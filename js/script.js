@@ -18,6 +18,7 @@ let score = 0
 let HP = 5
 let player_hitbox;
 let hearts
+let deadbody;
 
 
 let Boss
@@ -212,14 +213,14 @@ function Bullet(){
 
 function Spawn(){
     Spawn_timer++
-    let inimigos = ['peixe','peixe','agua_viva']
+    let inimigos = ['peixe','peixe','agua_viva','moreia']
     if(Spawn_timer>=Spawn_rate){
         let enemy = document.createElement('div')
         let random = Math.floor(Math.random()*1.999)
 
         
         enemy.classList.add(inimigos[Math.round(Math.random()*(inimigos.length-1))])
-        //enemy.classList.add('agua_viva')
+        //enemy.classList.add('moreia')
         enemy.style.top = Math.round((Math.random()*(tela.offsetHeight-200))+0)+"px"
         enemy.style.left = (random == 1?  tela.offsetWidth:  -128)+"px"
 
@@ -227,6 +228,61 @@ function Spawn(){
         Spawn_timer=0;
     }
 
+}
+
+function Moreia(){
+    let moreias = document.querySelectorAll('.moreia')
+    moreias.forEach(moreia=>{
+        if(moreia.direcao == null){
+            moreia.direcao=moreia.offsetLeft<=0 ?"esquerda" : "direita";
+            moreia.style.transform=`scale(${moreia.direcao=="esquerda"?-1:1},1)`
+            moreia.movimento = {x:moreia.direcao == "esquerda"?1:-1,y:0}
+            moreia.fps=15
+            moreia.style.top = Math.round(Math.random()*(tela.offsetHeight-140)+50)+"px"
+            moreia.charge_counter=0;
+
+
+            moreia.hitbox = document.createElement('div')
+            moreia.hitbox.classList.add('hitbox_enemy')
+            moreia.hitbox.style = `width:${moreia.direcao=="esquerda"?125:140}px; height:20px;`
+            moreia.hitbox.style.backgroundColor="#f000"
+            moreia.hitbox.own = moreia
+            moreia.HP = 1
+            tela.appendChild(moreia.hitbox)
+
+        }
+        if(Math.abs((moreia.offsetLeft+75)-(tela.offsetWidth/2))<=330&& moreia.charge_counter<=100){
+            moreia.fps=3
+            moreia.charge_counter++
+            if(moreia.charge_counter==95){moreia.movimento.x*=5}
+        }else{
+            Mover(moreia,moreia.movimento)
+        }
+        Animar(moreia,moreia.fps,moray,{w:750,h:150})
+
+        if(Colisao_Quadrada(player_hitbox,moreia.hitbox)&&!player.knocked&&velocidadeY!=dashspeed){
+            player.knocked = true
+            HP--
+        }
+
+        moreia.hitbox.style.left = (moreia.offsetLeft+10)+"px"
+        moreia.hitbox.style.top = (moreia.offsetTop+60)+"px"
+        
+        if(moreia.offsetLeft<(-1*moreia.offsetWidth-30)||moreia.offsetLeft>tela.offsetWidth+30){
+            moreia.hitbox.remove()
+            moreia.remove()
+            
+        }
+
+        if(moreia.HP<=0){
+            moreia.hitbox.remove()
+            moreia.remove()
+            score++
+            if(Spawn_rate>50)
+                Spawn_rate-=5
+        }
+    })
+    
 }
 
 function Jellyfish(){
@@ -326,31 +382,9 @@ function Jellyfish(){
         jfsh.hitbox.style.left = (jfsh.offsetLeft+52)+"px"
         jfsh.hitbox.style.top = (jfsh.offsetTop+55)+"px"
         Animar(jfsh,jfsh.fps,jfsh.animacao_atual,jfsh.sprite_size)
-        let Raios = ()=>{
-            let sparks = document.querySelectorAll('.spark')
-            sparks.forEach(raio=>{
-                Animar(raio,5,jellyfish.spark,{w:192,h:64})
-                raio.style.transform = "rotate("+raio.direcao.rotacao+"deg)"
-                Mover(raio,raio.direcao.sentido)
-                if(raio.offsetTop>tela.offsetHeight||
-                    raio.offsetTop<=(raio.offsetHeight*-1)||
-                    raio.offsetLeft>=(tela.offsetWidth)||
-                    raio.offsetLeft <= (raio.offsetWidth*-1)
-                ){
-                    raio.remove()
-                }
-                if(Colisao_Circular(player_hitbox,raio,16)&&velocidadeY!=dashspeed){
-                    if(!player.knocked){
-                        HP-=1
-                        player.knocked = true
-                        raio.remove()
-                    }
-                }
-            })
-        }
-        Raios()
 
-
+        if(jfsh.offsetTop<=100)
+            jfsh.style.top=(jfsh.offsetTop+1)+"px"
 
         if(jfsh.HP<=0){
             jfsh.hitbox.remove()
@@ -369,6 +403,29 @@ function Jellyfish(){
             HP--
         }
     })
+    let Raios = ()=>{
+        let sparks = document.querySelectorAll('.spark')
+        sparks.forEach(raio=>{
+            Animar(raio,5,jellyfish.spark,{w:192,h:64})
+            raio.style.transform = "rotate("+raio.direcao.rotacao+"deg)"
+            Mover(raio,raio.direcao.sentido)
+            if(raio.offsetTop>tela.offsetHeight||
+                raio.offsetTop<=(raio.offsetHeight*-1)||
+                raio.offsetLeft>=(tela.offsetWidth)||
+                raio.offsetLeft <= (raio.offsetWidth*-1)
+            ){
+                raio.remove()
+            }
+            if(Colisao_Circular(player_hitbox,raio,16)&&velocidadeY!=dashspeed){
+                if(!player.knocked){
+                    HP-=1
+                    player.knocked = true
+                    raio.remove()
+                }
+            }
+        })
+    }
+    Raios()
 }
 
 function Peixe(){
@@ -881,7 +938,7 @@ function Game_Start(){
     score=0
     bossfight=false
     player.timer_recoil = 0
-    teste = document.getElementById
+    Spawn_rate=150
     for(let i = 0;i < 5;i++){
         let heart = document.createElement('div')
         heart.classList.add('heart')
@@ -902,10 +959,63 @@ function Game(){
     Controles.clamp()
     Controles.animacao()
     if(HP<=0){
-        document.querySelector('audio:last-of-type').pause()
-        let Tudo = document.querySelectorAll('#Game>*')
+        let musica = document.querySelector(`audio:${bossfight?"last":"first"}-of-type`)
+        musica.pause()
+        let Tudo = document.querySelectorAll('#Game>*:not(#Player)')
+        deadbody = document.createElement('div')
+        deadbody.style = "width:64px;height:64px;"
+        deadbody.style.left = player.offsetLeft+"px"
+        deadbody.style.top = player.offsetTop+"px"
+        tela.appendChild(deadbody)
         Tudo.forEach(x=>x.remove())
+        player.style.opacity="0"
+        tela.style.backgroundImage = "none"
+        tela.style.backgroundColor="#000"
         etapa="game over"
+    }
+    Mover(player,direcao)
+    Bullet()
+    hearts = document.querySelectorAll('.heart')
+    hearts.forEach((coracao,indice)=>{
+        Animar(coracao,5,heart)
+        if(indice==HP){
+            coracao.remove()
+        }
+    })
+
+
+    Spawn()
+    Peixe()
+    Jellyfish()
+    Moreia()
+
+
+    if(bossfight){
+        Boss_Battle()
+        
+    }else{
+        if(score >= 20){
+            SpawnBoss()
+            document.querySelector('audio').pause()
+            document.querySelector('audio:last-of-type').currentTime=0
+            document.querySelector('audio:last-of-type').play()
+            bossfight =true
+        }
+        paralax++
+        tela.style.backgroundPosition = "0 "+paralax+"px"
+    }
+
+
+
+    
+}
+function Game_Over(){
+    if(deadbody!= null){
+        Animar(deadbody,7,Player_anim.death)
+    }
+    if(deadbody!=null&&deadbody.frame==10){
+        deadbody.remove()
+        deadbody=null
         tela.insertAdjacentHTML('beforeend','<div id="gameover"></div>')
         tela.insertAdjacentHTML('beforeend','<p>Clique em qualquer lugar para continuar</p>')
         document.getElementById('gameover').addEventListener('click',()=>{
@@ -929,44 +1039,9 @@ function Game(){
                 Game_Start()
             })
         })
-        
+
     }
-    Mover(player,direcao)
-    Bullet()
-    hearts = document.querySelectorAll('.heart')
-    hearts.forEach((coracao,indice)=>{
-        Animar(coracao,5,heart)
-        if(indice==HP){
-            coracao.remove()
-        }
-    })
-
-
-    Spawn()
-    Peixe()
-    Jellyfish()
-
-
-    if(bossfight){
-        Boss_Battle()
-        
-    }else{
-        if(score >= 20){
-            SpawnBoss()
-            document.querySelector('audio').pause()
-            document.querySelector('audio:last-of-type').currentTime=0
-            document.querySelector('audio:last-of-type').play()
-            bossfight =true
-        }
-        paralax++
-        tela.style.backgroundPosition = "0 "+paralax+"px"
-    }
-
-
-
-    
 }
-
 
 
 
@@ -984,7 +1059,6 @@ function Start(){
     bt_start.addEventListener('click',()=>{
         document.querySelectorAll('button').forEach(bt=>bt.remove())
         tela.style.backgroundImage="url(telas/gameplaybackgroundsketch.png)"
-        //SpawnMimic()
         Game_Start()
     })
     tela.insertAdjacentHTML('beforeend','<div id="Playintro">Clique em qualquer lugar para continuar</div>')
@@ -1005,6 +1079,7 @@ function Update(){
             Game()
             break;
         case "game over":
+            Game_Over()
             break;
         case "win":
             break;

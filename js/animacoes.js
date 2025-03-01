@@ -20,6 +20,19 @@ let Player_anim = {
     hit:[
         'player/idle/playeridle1.png',
         'player/blank.png'
+    ],
+    death:[
+        'player/death/playerdeath1.png',
+        'player/death/playerdeath2.png',
+        'player/death/playerdeath3.png',
+        'player/death/playerdeath4.png',
+        'player/death/playerdeath5.png',
+        'player/death/playerdeath5.png',
+        'player/death/playerdeath5.png',
+        'player/death/playerdeath5.png',
+        'player/death/playerdeath5.png',
+        'player/death/playerdeath5.png',
+        'player/death/playerdeath5.png'
     ]
 }
 
@@ -34,6 +47,7 @@ let jellyfish = {
     sparking:[{img:'inimigos/Aguaviva/sparking.png'}],
     spark:[{img:'inimigos/Aguaviva/spark.png'}]
 }
+let moray = [{img:'inimigos/moreia/moreia.png'}]
 
 let Boss_anim = {
     idle:[
@@ -100,3 +114,4 @@ for(let i=0;i<4;i++){jellyfish.idle.push({x:i*-1*128,y:0,w:128,h:128})}
 for(let i=0;i<5;i++){jellyfish.lightningup.push({x:i*-1*128,y:0,w:128,h:128})}
 for(let i=0;i<4;i++){jellyfish.sparking.push({x:i*-1*128,y:0,w:128,h:128})}
 for(let i=0;i<3;i++){jellyfish.spark.push({x:i*-1*64,y:0,w:64,h:64})}
+for(let i=0;i<5;i++){moray.push({x:i*-1*151,y:0,w:150,h:150})}

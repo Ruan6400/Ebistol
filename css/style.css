@@ -14,6 +14,7 @@ html, body {
     margin: 0 auto;
 }
 #Game>*{position: absolute;}
+#Game p{top: 300px;}
 #Player{
     width: 64px;
     height: 64px;
@@ -130,4 +131,9 @@ button:hover{
 .spark{
     width: 64px;
     height: 64px;
+}
+
+.moreia{
+    width: 150px;
+    height: 150px;
 }
